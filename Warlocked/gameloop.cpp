@@ -10,7 +10,7 @@ void Game::initSDL() {
 }
 
 //Close out SDL and any other SDL objects... add more later?
-void Game::close(SDL_Renderer* renderer, SDL_Window* mainScreen) {
+void Game::close() {
 	
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(mainScreen);
@@ -21,7 +21,7 @@ void Game::close(SDL_Renderer* renderer, SDL_Window* mainScreen) {
 void Game::gameloop() {
 	initSDL();
 
-	Player player(500, 500, 50, 50, renderer);
+	Player player(500, 500, 48, 48, renderer, "Resources/Player/Warlock.PNG");
 
 	//Main loop flag
 	bool quit = false;
@@ -47,7 +47,7 @@ void Game::gameloop() {
 		SDL_RenderClear(renderer);
 
 		player.update(renderer);
-		player.updateTexture(renderer);
+		//player.updateTexture(renderer);
 
 		//Render everything
 		SDL_RenderPresent(renderer);
@@ -57,5 +57,5 @@ void Game::gameloop() {
 
 	}
 
-	close(renderer, mainScreen);
+	close();
 }

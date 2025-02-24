@@ -8,9 +8,10 @@
 class Player : public Entity {
 public:
 
+    //A stack that stores key presses and pops as keys are released ... pretty novel I guess???? (definitely done before im not that cracked)
     std::vector<SDL_Scancode> keyStack;
 
-    Player(int x, int y, int w, int h, SDL_Renderer* renderer, std::string folderpath) : Entity(x, y, w, h, renderer, folderpath) {};
+    Player(int x, int y, int w, int h, SDL_Renderer* renderer, std::string givenpath) : Entity(x, y, w, h, renderer, givenpath) {};
     void handleEvent(const SDL_Event& e);
 };
 

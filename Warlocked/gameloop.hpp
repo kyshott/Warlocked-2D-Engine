@@ -11,7 +11,7 @@ public:
 
 	void initSDL();
 	void gameloop();
-	void close(SDL_Renderer* renderer, SDL_Window* mainScreen);
+	void close();
 
 private:
 	const int SCREEN_WIDTH = 1000;

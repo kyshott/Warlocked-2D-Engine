@@ -3,17 +3,27 @@
 #include <iostream>
 #include <filesystem>
 
-//Define player rectangle starting position and width/height
-Entity::Entity(int x, int y, int w, int h, SDL_Renderer* renderer, std::string folderpath) {
-	rect = { x, y, w, h };
+//Define player rectangle starting position and width/height - update path to the sprite sheet
+Entity::Entity(int x, int y, int w, int h, SDL_Renderer* renderer, std::string givenpath) {
+	
+	spriteWidth = w;
+	spriteHeight = h;
+
+	srcRect.x = 0;
+	srcRect.y = 0;
+	srcRect.w = spriteWidth;
+	srcRect.h = spriteHeight;
+
+	path = givenpath;
+	rect = { x, y, spriteWidth, spriteHeight };
 	dir = NONE;
-	readinTextures(textures, folderpath);
 	initTexture(renderer);
-	SDL_RenderCopy(renderer, sprites[DOWN], NULL, &rect);
 }
 
 //Update player position based on key held
 void Entity::update(SDL_Renderer* renderer) {
+
+	renderSprite(renderer);
 
 	//Window boundary detection... 100% temporary in this case will be changed later
 	if (rect.x < 0) rect.x = 0;
@@ -24,64 +34,34 @@ void Entity::update(SDL_Renderer* renderer) {
 	switch (dir)
 	{
 	case DOWN:
-		rect.y += 10; break;
+		rect.y += 10; spriteindex = 0; break;
 	case UP:
-		rect.y -= 10; break;
+		rect.y -= 10; spriteindex = 10; break;
 	case LEFT:
-		rect.x -= 10; break;
+		rect.x -= 10; spriteindex = 7; break;
 	case RIGHT:
-		rect.x += 10; break;
+		rect.x += 10; spriteindex = 4; break;
 	case NONE:
 		break;
 	}
 }
 
-void Entity::readinTextures(std::vector<std::string> textures, std::string folderpath) {
-
-	for (const auto& file : std::filesystem::directory_iterator(folderpath)) {
-		textures.push_back(file.path().string());
-	}
+//Render / update sprite of entity based on position
+void Entity::renderSprite(SDL_Renderer* renderer) {
+	
+	srcRect.x = spriteindex * spriteWidth;
+	
+	SDL_RenderCopy(renderer, texture, &srcRect, &rect);
 }
 
-//Loads / updates the player texture based on the direction enumeration
-void Entity::updateTexture(SDL_Renderer* renderer) {
-	switch (dir)
-	{
-	case DOWN:
-		SDL_RenderCopy(renderer, sprites[DOWN], NULL, &rect); break;
-	case UP:
-		SDL_RenderCopy(renderer, sprites[DOWN], NULL, &rect); break;
-	case LEFT:
-		SDL_RenderCopy(renderer, sprites[DOWN], NULL, &rect); break;
-	case RIGHT:
-		SDL_RenderCopy(renderer, sprites[DOWN], NULL, &rect); break;
-	case NONE:
-		SDL_RenderCopy(renderer, sprites[DOWN], NULL, &rect); break;
-	}
-}
-
+//Initializes the texture or "sprite sheet" for the entity
 void Entity::initTexture(SDL_Renderer* renderer) {
 
-	for (int i = 1; i < 5; i++) {
-		if (i == 1) {
-			sprites[UP] = loadTexture(textures[i], renderer);
-		}
-		if (i == 2) {
-			sprites[DOWN] = loadTexture(textures[i], renderer);
-		}
-		if (i == 3) {
-			sprites[LEFT] = loadTexture(textures[i], renderer);
-		}
-		if (i == 4) {
-			sprites[RIGHT] = loadTexture(textures[i], renderer);
-		}
+	std::cout << "Rendering from path: " << path << std::endl;
+
+	texture = loadTexture(path, renderer);
+
+	if (texture == NULL) {
+		std::cerr << "Texture failed to load. SDL_Error: " << SDL_GetError() << std::endl;
 	}
-
-	//SDL_SetTextureBlendMode(sprites[UP], SDL_BLENDMODE_BLEND);
-	//SDL_SetTextureBlendMode(sprites[DOWN], SDL_BLENDMODE_BLEND);
-
-	if (!sprites[UP] || !sprites[DOWN] || !sprites[LEFT] || !sprites[RIGHT]) {
-		std::cout << "Failed to load player textures! SDL_Error: " << SDL_GetError() << std::endl;
-	}
-
 }
